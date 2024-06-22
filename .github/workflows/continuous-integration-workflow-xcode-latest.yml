@@ -56,9 +56,15 @@ jobs:
       - name: Clean McBopomofoInstaller
         run: xcodebuild -scheme McBopomofoInstaller -configuration Release clean
       - name: Build McBopomofo
-        run: xcodebuild -scheme McBopomofo -configuration Release -derivedDataPath output build
+        run: xcodebuild -scheme McBopomofo -configuration Release -derivedDataPath DerivedData build
       - name: Build McBopomofoInstaller
-        run: xcodebuild -scheme McBopomofoInstaller -configuration Release -derivedDataPath output build
+        run: xcodebuild -scheme McBopomofoInstaller -configuration Release -derivedDataPath DerivedData build
+      - name: Upload McBopomofoInstaller
+        uses: actions/upload-artifact@v4
+        with:
+          name: McBopomofoInstaller.zip
+          path: DerivedData/**/McBopomofoInstaller.app
+          retention-days: 30
       - name: Test data files
         run: make check
         working-directory: Source/Data
