@@ -13,10 +13,10 @@ jobs:
         with:
           xcode-version: "^15.1.0"
       - name: Build McBopomofoInstaller
-        run: xcodebuild -scheme McBopomofoInstaller -configuration Release -derivedDataPath output build
+        run: xcodebuild -scheme McBopomofoInstaller -configuration Release -derivedDataPath Output build
       - name: Upload McBopomofoInstaller
         uses: actions/upload-artifact@v4
         with:
           name: McBopomofo-Installer
-          path: output/Build/Products/Release/*
+          path: Output/Build/Products/Release/McBopomofoInstaller.app
           retention-days: 30
