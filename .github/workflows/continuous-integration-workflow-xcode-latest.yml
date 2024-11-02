@@ -14,9 +14,13 @@ jobs:
           xcode-version: "^15.1.0"
       - name: Build McBopomofoInstaller
         run: xcodebuild -scheme McBopomofoInstaller -configuration Release -derivedDataPath Output build
+      - name: Package
+        run: | 
+          mkdir package
+          cp -R Output/Build/Products/Release/McBopomofoInstaller.app package
       - name: Upload McBopomofoInstaller
         uses: actions/upload-artifact@v4
         with:
           name: McBopomofo-Installer
-          path: Output/Build/Products/Release/McBopomofoInstaller.app
+          path: package
           retention-days: 30
