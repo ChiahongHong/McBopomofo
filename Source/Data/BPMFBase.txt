@@ -1711,6 +1711,7 @@
 鮓 ㄓㄚˋ zha4 584 big5
 痄 ㄓㄚˋ zha4 584 big5
 簎 ㄓㄚˋ zha4 584 big5
+咤 ㄓㄚˋ zha4 584 utf8
 扎 ㄓㄚˊ zha2 586 big5
 札 ㄓㄚˊ zha2 586 big5
 紮 ㄓㄚˊ zha2 586 big5
@@ -2283,6 +2284,7 @@
 孟 ㄇㄥˋ meng4 a/4 big5
 霿 ㄇㄥˋ meng4 a/4 big5
 霥 ㄇㄥˋ meng4 a/4 big5
+㝱 ㄇㄥˋ meng4 a/4 utf8
 蒙 ㄇㄥˊ meng2 a/6 big5
 盟 ㄇㄥˊ meng2 a/6 big5
 萌 ㄇㄥˊ meng2 a/6 big5
@@ -6612,6 +6614,7 @@
 硊 ㄨㄟˇ wei3 jo3 big5
 踓 ㄨㄟˇ wei3 jo3 big5
 斖 ㄨㄟˇ wei3 jo3 big5
+唯 ㄨㄟˇ wei3 jo3 big5
 為 ㄨㄟˋ wei4 jo4 big5
 位 ㄨㄟˋ wei4 jo4 big5
 未 ㄨㄟˋ wei4 jo4 big5
@@ -7758,6 +7761,7 @@
 庬 ㄆㄤˊ pang2 q;6 big5
 篣 ㄆㄤˊ pang2 q;6 big5
 舽 ㄆㄤˊ pang2 q;6 big5
+傍 ㄆㄤˊ pang2 q;6 big5
 波 ㄆㄛ po qi big5
 潑 ㄆㄛ po qi big5
 坡 ㄆㄛ po qi big5
@@ -7923,6 +7927,7 @@
 砯 ㄆㄧㄥ ping qu/ big5
 頩 ㄆㄧㄥ ping qu/ big5
 覮 ㄆㄧㄥ ping qu/ big5
+俜 ㄆㄧㄥ ping qu/ big5
 絣 ㄆㄧㄥˇ ping3 qu/3 big5
 平 ㄆㄧㄥˊ ping2 qu/6 big5
 瓶 ㄆㄧㄥˊ ping2 qu/6 big5
@@ -8369,6 +8374,7 @@
 鵘 ㄐㄩㄣˋ jun4 rmp4 big5
 葰 ㄐㄩㄣˋ jun4 rmp4 big5
 蔨 ㄐㄩㄣˋ jun4 rmp4 big5
+㕙 ㄐㄩㄣˋ jun4 rmp4 utf8
 機 ㄐㄧ ji ru big5
 基 ㄐㄧ ji ru big5
 積 ㄐㄧ ji ru big5
@@ -9321,6 +9327,7 @@
 逽 ㄋㄨㄛˋ nuo4 sji4 big5
 懧 ㄋㄨㄛˋ nuo4 sji4 big5
 糑 ㄋㄨㄛˋ nuo4 sji4 big5
+喏 ㄋㄨㄛˋ nuo4 sji4 big5
 挪 ㄋㄨㄛˊ nuo2 sji6 big5
 娜 ㄋㄨㄛˊ nuo2 sji6 big5
 儺 ㄋㄨㄛˊ nuo2 sji6 big5
@@ -11094,6 +11101,7 @@
 謞 ㄒㄩㄝˋ xue4 vm,4 big5
 岤 ㄒㄩㄝˋ xue4 vm,4 big5
 袕 ㄒㄩㄝˋ xue4 vm,4 big5
+屑 ㄒㄩㄝˋ xie4 vu,4 big5
 學 ㄒㄩㄝˊ xue2 vm,6 big5
 穴 ㄒㄩㄝˊ xue2 vm,6 big5
 鷽 ㄒㄩㄝˊ xue2 vm,6 big5
@@ -11238,6 +11246,7 @@
 沀 ㄒㄩˋ xu4 vm4 big5
 昫 ㄒㄩˋ xu4 vm4 big5
 瞁 ㄒㄩˋ xu4 vm4 big5
+壻 ㄒㄩˋ xu4 vm4 utf8
 徐 ㄒㄩˊ xu2 vm6 big5
 勳 ㄒㄩㄣ xun vmp big5
 薰 ㄒㄩㄣ xun vmp big5
@@ -11445,6 +11454,7 @@
 揳 ㄒㄧㄝˋ xie4 vu,4 big5
 齥 ㄒㄧㄝˋ xie4 vu,4 big5
 躠 ㄒㄧㄝˋ xie4 vu,4 big5
+寫 ㄒㄧㄝˋ xie4 vu,4 big5
 協 ㄒㄧㄝˊ xie2 vu,6 big5
 鞋 ㄒㄧㄝˊ xie2 vu,6 big5
 斜 ㄒㄧㄝˊ xie2 vu,6 big5
@@ -12539,6 +12549,7 @@
 褅 ㄊㄧˋ ti4 wu4 big5
 逖 ㄊㄧˋ ti4 wu4 big5
 鵜 ㄊㄧˋ ti4 wu4 big5
+剔 ㄊㄧˋ ti4 wu4 big5
 題 ㄊㄧˊ ti2 wu6 big5
 提 ㄊㄧˊ ti2 wu6 big5
 啼 ㄊㄧˊ ti2 wu6 big5
