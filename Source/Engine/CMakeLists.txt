@@ -105,6 +105,23 @@ if (ENABLE_TEST)
         )
         add_dependencies(runMcBopomofoLMLibTest McBopomofoLMLibTest)
 
+        add_executable(ByteBlockBackedDictionaryThroughput
+                ByteBlockBackedDictionaryThroughput.cpp)
+        target_link_libraries(ByteBlockBackedDictionaryThroughput McBopomofoLMLib)
+
+        if (ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON)
+            target_compile_definitions(ByteBlockBackedDictionaryThroughput PRIVATE ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON=1)
+        endif ()
+        if (ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512)
+            target_compile_options(ByteBlockBackedDictionaryThroughput PRIVATE -mavx512f -march=native -DENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512=1)
+        endif ()
+
+        add_custom_target(
+                runByteBlockBackedDictionaryThroughput
+                COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ByteBlockBackedDictionaryThroughput
+        )
+        add_dependencies(runByteBlockBackedDictionaryThroughput ByteBlockBackedDictionaryThroughput)
+
         if (ENABLE_BENCHMARK)
             set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
             set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
