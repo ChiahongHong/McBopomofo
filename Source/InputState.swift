@@ -604,12 +604,12 @@ class InputState: NSObject {
         @objc private(set) var selectedIndex: Int = 0
         @objc private(set) var candidates: [Candidate] = []
         @objc private(set) var useVerticalMode: Bool = false
-        @objc private(set) var useShiftKey: Bool = false
+        @objc private(set) var autoTriggered: Bool = false
 
         @objc init(
             previousState: NotEmpty, prefixCursorIndex: Int, prefixReading: String,
             prefixValue: String,
-            selectedIndex: Int, candidates: [Candidate], useVerticalMode: Bool, useShiftKey: Bool
+            selectedIndex: Int, candidates: [Candidate], useVerticalMode: Bool, autoTriggered: Bool
         ) {
             self.previousState = previousState
             self.prefixCursorIndex = prefixCursorIndex
@@ -618,7 +618,7 @@ class InputState: NSObject {
             self.selectedIndex = selectedIndex
             self.candidates = candidates
             self.useVerticalMode = useVerticalMode
-            self.useShiftKey = useShiftKey
+            self.autoTriggered = autoTriggered
             super.init(
                 composingBuffer: previousState.composingBuffer,
                 cursorIndex: previousState.cursorIndex)
@@ -629,7 +629,7 @@ class InputState: NSObject {
         }
 
         var candidateCount: Int {
-            candidates.count
+            autoTriggered ? 1 : candidates.count
         }
 
         func candidate(at index: Int) -> String {
@@ -638,6 +638,18 @@ class InputState: NSObject {
 
         func reading(at index: Int) -> String? {
             candidates[index].reading
+        }
+
+        @objc
+        func toggle(autoTriggered: Bool) -> AssociatedPhrases {
+            AssociatedPhrases(previousState: previousState,
+                              prefixCursorIndex: prefixCursorIndex,
+                              prefixReading: prefixReading,
+                              prefixValue: prefixValue,
+                              selectedIndex: selectedIndex,
+                              candidates: candidates,
+                              useVerticalMode: useVerticalMode,
+                              autoTriggered: autoTriggered)
         }
 
     }
