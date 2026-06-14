@@ -121,7 +121,7 @@ TEST(ParselessPhraseDBTest, FindFirstMatchingLineLongerExample) {
 }
 
 TEST(ParselessPhraseDBTest, FindFirstMatchingLineWithLongRows) {
-  // Use long rows to verify line-start lookup across multiple 16-byte blocks
+  // Use long rows to verify line-start lookup across multiple SIMD blocks.
   std::string data = "a " + std::string(127, 'a') + "\n";
   const size_t firstBOffset = data.size();
   data += "b " + std::string(255, 'b') + "\n";
@@ -133,6 +133,25 @@ TEST(ParselessPhraseDBTest, FindFirstMatchingLineWithLongRows) {
   EXPECT_EQ(db.findFirstMatchingLine("b"), data.data() + firstBOffset);
   EXPECT_EQ(db.findFirstMatchingLine("c"), data.data() + cOffset);
   EXPECT_EQ(db.findFirstMatchingLine("d"), nullptr);
+}
+
+TEST(ParselessPhraseDBTest, FindFirstMatchingLineAt64ByteBoundaries) {
+  std::string data = "a " + std::string(61, 'a') + "\n";
+  const size_t firstBOffset = data.size();
+  data += "b " + std::string(62, 'b') + "\n";
+  const size_t firstCOffset = data.size();
+  data += "c " + std::string(63, 'c') + "\n";
+  const size_t firstDOffset = data.size();
+  data += "d " + std::string(190, 'd') + "\n";
+  ParselessPhraseDB db(data.c_str(), data.length());
+
+  EXPECT_EQ(firstBOffset, 64);
+  EXPECT_EQ(firstCOffset, 129);
+  EXPECT_EQ(firstDOffset, 195);
+  EXPECT_EQ(db.findFirstMatchingLine("b"), data.data() + firstBOffset);
+  EXPECT_EQ(db.findFirstMatchingLine("c"), data.data() + firstCOffset);
+  EXPECT_EQ(db.findFirstMatchingLine("d"), data.data() + firstDOffset);
+  EXPECT_EQ(db.findFirstMatchingLine("e"), nullptr);
 }
 
 TEST(ParselessPhraseDBTest, InvalidConstructorArguments) {
@@ -240,6 +259,19 @@ TEST(ParselessPhraseDBTest, LookUpByValue) {
 
   rows = db.reverseFindRows("4");
   ASSERT_TRUE(rows.empty());
+}
+
+TEST(ParselessPhraseDBTest, LookUpByValueWithLongRows) {
+  std::string data = "a " + std::string(127, 'a') + "\n";
+  data += "b   target " + std::string(255, 'b') + "\n";
+  data += "c " + std::string(511, 'c');
+  ParselessPhraseDB db(data.c_str(), data.length());
+
+  EXPECT_EQ(db.reverseFindRows("target"),
+            (std::vector<std::string>{
+                "b   target " + std::string(255, 'b'),
+            }));
+  EXPECT_TRUE(db.reverseFindRows("missing").empty());
 }
 
 }  // namespace McBopomofo

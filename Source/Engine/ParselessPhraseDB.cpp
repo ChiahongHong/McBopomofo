@@ -28,6 +28,26 @@
 #include <string>
 #include <vector>
 
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512
+#if defined(__AVX512F__) && defined(__AVX512BW__)
+#include <immintrin.h>
+
+#include <cstdint>
+#else
+#error AVX512F and AVX512BW support required
+#endif
+#endif
+
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX2
+#if defined(__AVX2__)
+#include <immintrin.h>
+
+#include <cstdint>
+#else
+#error AVX2 support required
+#endif
+#endif
+
 #ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON
 #if defined(__ARM_NEON)
 #include <arm_neon.h>
@@ -42,7 +62,41 @@ namespace McBopomofo {
 
 namespace {
 
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512
+
+int LastNonZeroLane64(__mmask64 value) {
+  // value is non-zero. Count leading zeros to locate the last matching byte.
+  return 63 - __builtin_clzll(static_cast<uint64_t>(value));
+}
+
+#endif
+
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX2
+
+int FirstNonZeroLane32(uint32_t value) {
+  // value is non-zero. Count trailing zeros to locate the first matching byte.
+  return __builtin_ctz(value);
+}
+
+int LastNonZeroLane32(uint32_t value) {
+  // value is non-zero. Count leading zeros to locate the last matching byte.
+  return 31 - __builtin_clz(value);
+}
+
+#endif
+
 #ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON
+
+int FirstNonZeroLane16(uint8x16_t value) {
+  alignas(16) uint8_t lanes[16];
+  vst1q_u8(lanes, value);
+  for (int i = 0; i < 16; ++i) {
+    if (lanes[i] != 0) {
+      return i;
+    }
+  }
+  return 16;
+}
 
 int LastNonZeroLane16(uint8x16_t value) {
   // value must be a comparison mask whose lanes are either 0x00 or 0xff.
@@ -57,10 +111,78 @@ int LastNonZeroLane16(uint8x16_t value) {
 
 #endif
 
+const char* FindNextCharacter(const char* position, const char* end,
+                              char character) {
+  const char* cursor = position;
+
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512
+  const __m512i characters = _mm512_set1_epi8(character);
+  while (end - cursor >= 64) {
+    const __m512i block = _mm512_loadu_si512(cursor);
+    const __mmask64 mask = _mm512_cmpeq_epi8_mask(block, characters);
+    if (mask != 0) {
+      return cursor + __builtin_ctzll(static_cast<uint64_t>(mask));
+    }
+    cursor += 64;
+  }
+#elif defined(ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX2)
+  const __m256i characters = _mm256_set1_epi8(character);
+  while (end - cursor >= 32) {
+    const __m256i block =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i*>(cursor));
+    const uint32_t mask = static_cast<uint32_t>(
+        _mm256_movemask_epi8(_mm256_cmpeq_epi8(block, characters)));
+    if (mask != 0) {
+      return cursor + FirstNonZeroLane32(mask);
+    }
+    cursor += 32;
+  }
+#elif defined(ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON)
+  const uint8x16_t characters = vdupq_n_u8(static_cast<uint8_t>(character));
+  while (end - cursor >= 16) {
+    const uint8x16_t block = vld1q_u8(reinterpret_cast<const uint8_t*>(cursor));
+    const int positionInBlock = FirstNonZeroLane16(vceqq_u8(block, characters));
+    if (positionInBlock != 16) {
+      return cursor + positionInBlock;
+    }
+    cursor += 16;
+  }
+#endif
+
+  while (cursor != end && *cursor != character) {
+    ++cursor;
+  }
+  return cursor;
+}
+
 const char* FindLineStart(const char* begin, const char* position) {
   const char* cursor = position;
 
-#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON
+#ifdef ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX512
+  const __m512i linefeeds = _mm512_set1_epi8('\n');
+  while (cursor - begin >= 64) {
+    const char* blockStart = cursor - 64;
+    const __m512i block = _mm512_loadu_si512(blockStart);
+    const __mmask64 mask = _mm512_cmpeq_epi8_mask(block, linefeeds);
+    if (mask != 0) {
+      return blockStart + LastNonZeroLane64(mask) + 1;
+    }
+    cursor = blockStart;
+  }
+#elif defined(ENABLE_EXPERIMENTAL_SIMD_SUPPORT_AVX2)
+  const __m256i linefeeds = _mm256_set1_epi8('\n');
+  while (cursor - begin >= 32) {
+    const char* blockStart = cursor - 32;
+    const __m256i block =
+        _mm256_loadu_si256(reinterpret_cast<const __m256i*>(blockStart));
+    const uint32_t mask = static_cast<uint32_t>(
+        _mm256_movemask_epi8(_mm256_cmpeq_epi8(block, linefeeds)));
+    if (mask != 0) {
+      return blockStart + LastNonZeroLane32(mask) + 1;
+    }
+    cursor = blockStart;
+  }
+#elif defined(ENABLE_EXPERIMENTAL_SIMD_SUPPORT_NEON)
   const uint8x16_t linefeeds = vdupq_n_u8(static_cast<uint8_t>('\n'));
   while (cursor - begin >= 16) {
     const char* blockStart = cursor - 16;
@@ -135,11 +257,7 @@ std::vector<std::string_view> ParselessPhraseDB::findRows(
 
   while (ptr + key.length() <= end_ &&
          memcmp(ptr, key.data(), key.length()) == 0) {
-    const char* eol = ptr;
-
-    while (eol != end_ && *eol != '\n') {
-      ++eol;
-    }
+    const char* eol = FindNextCharacter(ptr, end_, '\n');
 
     rows.emplace_back(ptr, eol - ptr);
     if (eol == end_) {
@@ -225,9 +343,7 @@ std::vector<std::string> ParselessPhraseDB::reverseFindRows(
     const char* ptr = recordBegin;
 
     // skip over the key to find the field separator
-    while (ptr < end_ && *ptr != ' ') {
-      ++ptr;
-    }
+    ptr = FindNextCharacter(ptr, end_, ' ');
     // skip over the field separator. there should be just one, but loop just in
     // case.
     while (ptr < end_ && *ptr == ' ') {
@@ -235,10 +351,7 @@ std::vector<std::string> ParselessPhraseDB::reverseFindRows(
     }
 
     // now walk to the end of this record
-    const char* recordEnd = ptr;
-    while (recordEnd < end_ && *recordEnd != '\n') {
-      ++recordEnd;
-    }
+    const char* recordEnd = FindNextCharacter(ptr, end_, '\n');
 
     if (ptr + value.length() < end_ &&
         memcmp(ptr, value.data(), value.length()) == 0) {
