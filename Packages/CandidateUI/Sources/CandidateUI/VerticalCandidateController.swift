@@ -25,7 +25,6 @@ import Cocoa
 
 private class VerticalKeyLabelStripView: NSView {
     var keyLabelFont: NSFont = .systemFont(ofSize: NSFont.smallSystemFontSize)
-    var labelOffsetY: CGFloat = 0
     var keyLabels: [String] = []
     var highlightedIndex: Int = -1
 
@@ -50,6 +49,8 @@ private class VerticalKeyLabelStripView: NSView {
             return
         }
         let cellHeight: CGFloat = bounds.size.height / CGFloat(count)
+        let textHeight = ceil(keyLabelFont.boundingRectForFont.height)
+        let textOffsetY = max(0, floor((cellHeight - textHeight) / 2.0))
         let black = NSColor.black
         let darkGray = NSColor(deviceWhite: 0.7, alpha: 1.0)
         let lightGray = NSColor(deviceWhite: 0.8, alpha: 1.0)
@@ -77,8 +78,8 @@ private class VerticalKeyLabelStripView: NSView {
         ]
         for index in 0..<count {
             let textRect = NSRect(
-                x: 0.0, y: CGFloat(index) * cellHeight + labelOffsetY, width: bounds.size.width,
-                height: cellHeight - labelOffsetY)
+                x: 0.0, y: CGFloat(index) * cellHeight + textOffsetY, width: bounds.size.width,
+                height: cellHeight - textOffsetY)
             var cellRect = NSRect(
                 x: 0.0, y: CGFloat(index) * cellHeight, width: bounds.size.width, height: cellHeight
             )
@@ -102,6 +103,27 @@ private class VerticalKeyLabelStripView: NSView {
             }
         }
     }
+}
+
+final class VerticallyCenteredTextFieldCell: NSTextFieldCell {
+    override func drawingRect(forBounds rect: NSRect) -> NSRect {
+        var textRect = super.drawingRect(forBounds: rect)
+        let textHeight = cellSize(forBounds: rect).height
+        let verticalPadding = textRect.height - textHeight
+        if verticalPadding > 0 {
+            textRect.origin.y += verticalPadding / 2.0
+            textRect.size.height = textHeight
+        }
+        return textRect
+    }
+}
+
+func tooltipTextFrame(
+    windowWidth: CGFloat, windowHeight: CGFloat, tooltipHeight: CGFloat, padding: CGFloat
+) -> NSRect {
+    let tooltipFrame = NSRect(
+        x: 0, y: windowHeight - tooltipHeight, width: windowWidth, height: tooltipHeight)
+    return tooltipFrame.insetBy(dx: padding, dy: padding)
 }
 
 private let kCandidateTextPadding: CGFloat = 24.0
@@ -290,7 +312,7 @@ public class VerticalCandidateController: CandidateController {
 
         tableView = VerticalCandidateTableView(frame: contentRect)
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(rawValue: "candidate"))
-        column.dataCell = NSTextFieldCell()
+        column.dataCell = VerticallyCenteredTextFieldCell()
         column.isEditable = false
 
         candidateTextPadding = kCandidateTextPadding
@@ -654,9 +676,6 @@ extension VerticalCandidateController: NSTableViewDataSource, NSTableViewDelegat
         keyLabelStripView.keyLabelFont = keyLabelFont
         let actualKeyLabels = keyLabels[0..<Int(keyLabelCount)].map { $0.displayedText }
         keyLabelStripView.keyLabels = actualKeyLabels
-        keyLabelStripView.labelOffsetY =
-            (keyLabelFontSize >= candidateFontSize)
-            ? 0.0 : floor((candidateFontSize - keyLabelFontSize) / 2.0)
 
         let rowHeight = ceil(fontSize * 1.25)
         tableView.rowHeight = rowHeight
@@ -689,9 +708,11 @@ extension VerticalCandidateController: NSTableViewDataSource, NSTableViewDelegat
         scrollView.frame = NSRect(
             x: stripWidth + 1.0, y: 0, width: windowWidth - stripWidth - 1,
             height: windowHeight - tooltipHeight)
-        tooltipView.frame = NSRect(
-            x: tooltipPadding, y: windowHeight - tooltipHeight + tooltipPadding, width: windowWidth,
-            height: tooltipHeight)
+        tooltipView.frame = tooltipTextFrame(
+            windowWidth: windowWidth,
+            windowHeight: windowHeight,
+            tooltipHeight: tooltipHeight,
+            padding: tooltipPadding)
         window?.setFrame(frameRect, display: false)
     }
 }

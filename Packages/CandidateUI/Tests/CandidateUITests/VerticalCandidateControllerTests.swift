@@ -7,6 +7,44 @@ import Testing
 @Suite("Test the Vertical Candidate Controller")
 final class VerticalCandidateControllerTests {
 
+    @Test("Test if candidate text drawing rect is vertically centered")
+    func testCandidateTextVerticalAlignment() {
+        for fontSize: CGFloat in [14, 16, 18, 20] {
+            let cell = VerticallyCenteredTextFieldCell()
+            cell.font = .systemFont(ofSize: fontSize)
+            cell.stringValue = "麥"
+            let rowHeight = ceil(fontSize * 1.25)
+            let bounds = NSRect(x: 0, y: 0, width: 40, height: rowHeight)
+
+            let drawingRect = cell.drawingRect(forBounds: bounds)
+
+            #expect(abs(drawingRect.midY - bounds.midY) < 0.001)
+        }
+    }
+
+    @Test("Test if tooltip text field is centered in its region")
+    func testTooltipVerticalAlignment() {
+        let windowWidth: CGFloat = 100
+        let windowHeight: CGFloat = 200
+        let tooltipHeight: CGFloat = 24
+        let tooltipViewFrame = tooltipTextFrame(
+            windowWidth: windowWidth,
+            windowHeight: windowHeight,
+            tooltipHeight: tooltipHeight,
+            padding: 2)
+        let tooltipRegion = NSRect(
+            x: 0,
+            y: windowHeight - tooltipHeight,
+            width: windowWidth,
+            height: tooltipHeight
+        )
+
+        #expect(tooltipViewFrame.midX == tooltipRegion.midX)
+        #expect(tooltipViewFrame.midY == tooltipRegion.midY)
+        #expect(tooltipViewFrame.minX > tooltipRegion.minX)
+        #expect(tooltipViewFrame.maxY < tooltipRegion.maxY)
+    }
+
     class Mock: CandidateControllerDelegate {
         let candidates = ["A", "B", "C", "D", "E", "F", "G", "H"]
         var selected: String?
