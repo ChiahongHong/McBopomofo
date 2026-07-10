@@ -7,6 +7,47 @@ import Testing
 @Suite("Test the Vertical Candidate Controller")
 final class VerticalCandidateControllerTests {
 
+    @Test("Test if candidate glyph bounds are vertically centered")
+    func testCandidateTextVerticalAlignment() {
+        for fontSize: CGFloat in [12, 14, 16, 18, 24] {
+            let attributedText = NSAttributedString(
+                string: "王", attributes: [.font: NSFont.systemFont(ofSize: fontSize)])
+            let line = CTLineCreateWithAttributedString(attributedText)
+            let textBounds = CTLineGetBoundsWithOptions(line, [.useGlyphPathBounds])
+            let rowHeight = ceil(fontSize * 1.25)
+            let bounds = NSRect(x: 0, y: 0, width: 40, height: rowHeight)
+
+            let baseline = opticallyCenteredBaseline(
+                textBounds: textBounds, in: bounds, isFlipped: true)
+            let drawnTextMidY = baseline - textBounds.midY
+
+            #expect(abs(drawnTextMidY - bounds.midY) < 0.001)
+        }
+    }
+
+    @Test("Test if tooltip text field is centered in its region")
+    func testTooltipVerticalAlignment() {
+        let windowWidth: CGFloat = 100
+        let windowHeight: CGFloat = 200
+        let tooltipHeight: CGFloat = 24
+        let tooltipViewFrame = tooltipTextFrame(
+            windowWidth: windowWidth,
+            windowHeight: windowHeight,
+            tooltipHeight: tooltipHeight,
+            padding: 2)
+        let tooltipRegion = NSRect(
+            x: 0,
+            y: windowHeight - tooltipHeight,
+            width: windowWidth,
+            height: tooltipHeight
+        )
+
+        #expect(tooltipViewFrame.midX == tooltipRegion.midX)
+        #expect(tooltipViewFrame.midY == tooltipRegion.midY)
+        #expect(tooltipViewFrame.minX > tooltipRegion.minX)
+        #expect(tooltipViewFrame.maxY < tooltipRegion.maxY)
+    }
+
     class Mock: CandidateControllerDelegate {
         let candidates = ["A", "B", "C", "D", "E", "F", "G", "H"]
         var selected: String?
