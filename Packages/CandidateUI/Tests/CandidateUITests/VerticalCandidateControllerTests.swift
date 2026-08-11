@@ -190,4 +190,68 @@ final class VerticalCandidateControllerTests {
         #expect(controller.selectedCandidateIndex == 0)
     }
 
+    @Test("Test if candidate text is vertically centered in its row")
+    func testCandidateTextVerticalAlignment() {
+        let fontSize: CGFloat = 16
+        let cell = VerticallyCenteredTextFieldCell()
+        cell.attributedStringValue = NSAttributedString(
+            string: "注",
+            attributes: [.font: NSFont.systemFont(ofSize: fontSize)])
+        let bounds = NSRect(x: 0, y: 0, width: 100, height: ceil(fontSize * 1.25))
+
+        let drawingRect = cell.drawingRect(forBounds: bounds)
+
+        #expect(drawingRect.height < bounds.height)
+        #expect(abs(drawingRect.midY - bounds.midY) < 0.001)
+    }
+
+    @Test("Test if key labels are vertically centered in their rows")
+    func testKeyLabelVerticalAlignment() {
+        let cell = VerticallyCenteredTextFieldCell()
+        cell.attributedStringValue = NSAttributedString(
+            string: "1",
+            attributes: [.font: NSFont.systemFont(ofSize: 10)])
+        let bounds = NSRect(x: 0, y: 0, width: 25, height: 21)
+
+        let drawingRect = cell.drawingRect(forBounds: bounds)
+
+        #expect(drawingRect.height < bounds.height)
+        #expect(abs(drawingRect.midY - bounds.midY) < 0.001)
+    }
+
+    @Test("Test if the tooltip is centered and inset within the window")
+    func testTooltipAlignment() {
+        let cell = VerticallyCenteredTextFieldCell()
+        cell.attributedStringValue = NSAttributedString(
+            string: "將進酒",
+            attributes: [.font: NSFont.systemFont(ofSize: 13)])
+        let padding: CGFloat = 2
+        let contentHeight = ceil(cell.cellSize.height) + padding * 2
+        let bounds = NSRect(x: 0, y: 0, width: 100, height: contentHeight)
+
+        let drawingRect = cell.drawingRect(forBounds: bounds)
+        let frame = tooltipFrame(
+            windowWidth: 100, windowHeight: 200, tooltipHeight: contentHeight, padding: padding)
+
+        #expect(abs(drawingRect.midY - bounds.midY) < 0.001)
+        #expect(frame.minX == padding)
+        #expect(frame.maxX == 100 - padding)
+        #expect(frame.maxY == 200)
+    }
+
+    @Test("Test if oversized candidate text stays within its row")
+    func testOversizedCandidateTextVerticalAlignment() {
+        let cell = VerticallyCenteredTextFieldCell()
+        cell.attributedStringValue = NSAttributedString(
+            string: "注",
+            attributes: [.font: NSFont.systemFont(ofSize: 32)])
+        let bounds = NSRect(x: 0, y: 0, width: 100, height: 20)
+
+        let drawingRect = cell.drawingRect(forBounds: bounds)
+
+        #expect(drawingRect.minY >= bounds.minY)
+        #expect(drawingRect.maxY <= bounds.maxY)
+        #expect(drawingRect.height == bounds.height)
+    }
+
 }
