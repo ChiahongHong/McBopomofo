@@ -117,6 +117,14 @@ final class BopomofoBrailleTests {
         #expect(output == "ABcd")
     }
 
+    @Test("Test incomplete Braille indicators")
+    func testIncompleteIndicators() {
+        #expect(BopomofoBrailleConverter.convert(braille: "⠼") == "⠼")
+        #expect(BopomofoBrailleConverter.convert(braille: "⠁⠠") == "a⠠")
+        #expect(BopomofoBrailleConverter.convert(braille: "#", type: .ascii) == "#")
+        #expect(BopomofoBrailleConverter.convert(braille: "a,", type: .ascii) == "a,")
+    }
+
     @Test(
         "Test ASCII Braille yv combinations",
         arguments: [

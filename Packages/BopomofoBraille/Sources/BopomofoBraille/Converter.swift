@@ -341,7 +341,7 @@ import Foundation
                 var substring = String(
                     braille[braille.index(braille.startIndex, offsetBy: readHead)])
                 var isUppercase = false
-                if substring == uppercaseSign(for: type) {
+                if substring == uppercaseSign(for: type) && readHead + 1 < length {
                     // Uppercase1;
                     isUppercase = true
                     substring = String(
@@ -463,7 +463,7 @@ import Foundation
                 }
             }
 
-            if substring == numberSign(for: type) {
+            if substring == numberSign(for: type) && readHead + 1 < length {
                 let next = String(
                     braille[braille.index(braille.startIndex, offsetBy: readHead + 1)])
                 if let digit = digit(from: next, type: type) {
