@@ -466,13 +466,30 @@ private struct BasicPreferencesView: View {
                 .fixedSize()
             }
 
-            PreferenceRow(localized("Candidate List Style:")) {
+            PreferenceRow(localized("Candidate Window Style:")) {
+                Picker("", selection: $preferences.candidateWindowStyle) {
+                    Text(localized("Classic")).tag(CandidateWindowStyle.classic)
+                    Text(localized("Modern")).tag(CandidateWindowStyle.modern)
+                }
+                .labelsHidden()
+                .pickerStyle(RadioGroupPickerStyle())
+                .horizontalRadioGroupLayout()
+                .fixedSize()
+
+                Toggle(
+                    localized("Allow candidate window expansion"),
+                    isOn: $preferences.candidateWindowAllowsExpansion)
+                    .disabled(preferences.candidateWindowStyle != .modern)
+            }
+
+            PreferenceRow(localized("Candidate List Orientation:")) {
                 Picker("", selection: $preferences.useHorizontalCandidateList) {
                     Text(localized("Vertical")).tag(false)
                     Text(localized("Horizontal")).tag(true)
                 }
                 .labelsHidden()
                 .pickerStyle(RadioGroupPickerStyle())
+                .horizontalRadioGroupLayout()
                 .fixedSize()
             }
 

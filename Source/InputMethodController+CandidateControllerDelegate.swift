@@ -27,7 +27,7 @@ import InputMethodKit
 import NotifierUI
 import SystemCharacterInfo
 
-extension McBopomofoInputMethodController: CandidateControllerDelegate {
+extension McBopomofoInputMethodController: @MainActor CandidateControllerDelegate {
 
     func candidateCountForController(_ controller: CandidateController) -> UInt {
         if let state = state as? CandidateProvider {
@@ -50,6 +50,10 @@ extension McBopomofoInputMethodController: CandidateControllerDelegate {
     func candidateController(
         _ controller: CandidateController, didSelectCandidateAtIndex index: UInt
     ) {
+        selectCandidate(at: index)
+    }
+
+    func selectCandidate(at index: UInt) {
         let client = currentClient
 
         switch state {
@@ -187,6 +191,10 @@ extension McBopomofoInputMethodController: CandidateControllerDelegate {
     }
 
     func candidateController(_ controller: CandidateController, requestExplanationFor candidate: String, reading: String) -> String? {
+        candidateExplanation(for: candidate, reading: reading)
+    }
+
+    func candidateExplanation(for candidate: String, reading: String) -> String? {
         // The method helps to provide character information for Voice Over.
         // For example, when a user turns VoiceOver on and then select a candidate
         // like "中", Voice Over will say "「中國地方」的「中」".

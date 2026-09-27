@@ -37,19 +37,22 @@ extension Bool {
 
 private let kMinKeyLabelSize: CGFloat = 10
 
-internal var gCurrentCandidateController: CandidateController?
+@MainActor internal var gCurrentCandidateController: (any CandidateWindowController)?
 
 extension CandidateController {
     static let horizontal = HorizontalCandidateController()
     static let vertical = VerticalCandidateController()
 }
 
+@MainActor
 @objc(McBopomofoInputMethodController)
 class McBopomofoInputMethodController: IMKInputController {
 
     private static let tooltipController = TooltipController()
 
     // MARK: -
+
+    lazy var modernCandidateDelegate = ModernCandidateDelegate(owner: self)
 
     var currentClient: Any?
     var keyHandler: KeyHandler = KeyHandler()
@@ -458,7 +461,7 @@ extension McBopomofoInputMethodController {
     private func handle(state: InputState.Deactivated, previous: InputState, client: Any?) {
         currentClient = nil
 
-        gCurrentCandidateController?.delegate = nil
+        gCurrentCandidateController?.clearDelegate()
         gCurrentCandidateController?.visible = false
         hideTooltip()
 
@@ -780,6 +783,15 @@ extension McBopomofoInputMethodController {
     }
 
     private func show(candidateWindowWith state: InputState, client: Any!) {
+        switch Preferences.candidateWindowStyle {
+        case .classic:
+            showClassic(candidateWindowWith: state, client: client)
+        case .modern:
+            showModern(candidateWindowWith: state, client: client)
+        }
+    }
+
+    private func showClassic(candidateWindowWith state: InputState, client: Any!) {
         let useVerticalMode: Bool = {
             var useVerticalMode = false
             var candidates: [InputState.Candidate] = []
@@ -818,18 +830,20 @@ extension McBopomofoInputMethodController {
             return false
         }()
 
-        gCurrentCandidateController?.delegate = nil
+        gCurrentCandidateController?.clearDelegate()
         gCurrentCandidateController?.visible = false
 
+        let candidateController: CandidateController
         if useVerticalMode {
-            gCurrentCandidateController = .vertical
+            candidateController = .vertical
         } else if Preferences.useHorizontalCandidateList {
-            gCurrentCandidateController = .horizontal
+            candidateController = .horizontal
         } else {
-            gCurrentCandidateController = .vertical
+            candidateController = .vertical
         }
 
-        gCurrentCandidateController?.tooltip =
+        gCurrentCandidateController = candidateController
+        candidateController.tooltip =
             switch state {
             case let state as InputState.SelectingDictionary:
                 String(format: NSLocalizedString("Look up %@", comment: ""), state.selectedPhrase)
@@ -852,9 +866,9 @@ extension McBopomofoInputMethodController {
             return NSFont.systemFont(ofSize: size)
         }
 
-        gCurrentCandidateController?.keyLabelFont = font(
+        candidateController.keyLabelFont = font(
             name: Preferences.candidateKeyLabelFontName, size: keyLabelSize)
-        gCurrentCandidateController?.candidateFont = font(
+        candidateController.candidateFont = font(
             name: Preferences.candidateTextFontName, size: textSize)
 
         let candidateKeys = Preferences.candidateKeys
@@ -872,12 +886,12 @@ extension McBopomofoInputMethodController {
         default:
             { $0 }
         }
-        gCurrentCandidateController?.keyLabels = keyLabels.map {
+        candidateController.keyLabels = keyLabels.map {
             CandidateKeyLabel(key: String($0), displayedText: keyLabelFormat(String($0)))
         }
 
-        gCurrentCandidateController?.delegate = self
-        gCurrentCandidateController?.reloadData()
+        candidateController.delegate = self
+        candidateController.reloadData()
         currentClient = client
 
         var lineHeightRect = NSMakeRect(0.0, 0.0, 16.0, 16.0)
@@ -897,19 +911,19 @@ extension McBopomofoInputMethodController {
         }
 
         if useVerticalMode {
-            gCurrentCandidateController?.set(
+            candidateController.set(
                 windowTopLeftPoint: NSMakePoint(
                     lineHeightRect.origin.x + lineHeightRect.size.width + 4.0,
                     lineHeightRect.origin.y - 4.0),
                 bottomOutOfScreenAdjustmentHeight: lineHeightRect.size.height + 4.0)
         } else {
-            gCurrentCandidateController?.set(
+            candidateController.set(
                 windowTopLeftPoint: NSMakePoint(
                     lineHeightRect.origin.x, lineHeightRect.origin.y - 4.0),
                 bottomOutOfScreenAdjustmentHeight: lineHeightRect.size.height + 4.0)
         }
 
-        gCurrentCandidateController?.visible = true
+        candidateController.visible = true
     }
 
     private func show(tooltip: String, composingBuffer: String, cursorIndex: UInt, client: Any!) {

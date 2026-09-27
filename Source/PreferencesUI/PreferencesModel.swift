@@ -113,6 +113,22 @@ final class PreferencesViewModel: NSObject, ObservableObject {
         }
     }
 
+    var candidateWindowStyle: CandidateWindowStyle {
+        get { Preferences.candidateWindowStyle }
+        set {
+            objectWillChange.send()
+            Preferences.candidateWindowStyle = newValue
+        }
+    }
+
+    var candidateWindowAllowsExpansion: Bool {
+        get { Preferences.candidateWindowAllowsExpansion }
+        set {
+            objectWillChange.send()
+            Preferences.candidateWindowAllowsExpansion = newValue
+        }
+    }
+
     var useHorizontalCandidateList: Bool {
         get { Preferences.useHorizontalCandidateList }
         set {

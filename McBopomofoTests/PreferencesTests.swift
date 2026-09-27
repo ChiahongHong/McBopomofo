@@ -126,6 +126,18 @@ final class PreferencesTests {
         #expect(Preferences.selectPhraseAfterCursorAsCandidate == true)
     }
 
+    @Test
+    func testCandidateWindowDefaultsAndPersistence() {
+        #expect(Preferences.candidateWindowStyle == .modern)
+        #expect(Preferences.candidateWindowAllowsExpansion)
+        Preferences.candidateWindowStyle = .classic
+        Preferences.candidateWindowAllowsExpansion = false
+        #expect(Preferences.candidateWindowStyle == .classic)
+        #expect(!Preferences.candidateWindowAllowsExpansion)
+        UserDefaults.standard.set(999, forKey: "CandidateWindowStyle")
+        #expect(Preferences.candidateWindowStyle == .modern)
+    }
+
     @Test("Test horizontal candidate list preference")
     func testUseHorizontalCandidateList() {
         #expect(Preferences.useHorizontalCandidateList == false)

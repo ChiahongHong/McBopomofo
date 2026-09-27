@@ -260,3 +260,10 @@
 "You can run a script to use git to backup your phrases. The script will run in the folder of your user phrases folder." = "You can run a script to use git to backup your phrases. The script will run in the folder of your user phrases folder.";
 
 "Quick Text Transform" = "Quick Text Transform";
+
+/* Candidate window appearance preferences. */
+"Candidate Window Style:" = "Candidate Window Style:";
+"Classic" = "Classic";
+"Modern" = "Modern";
+"Allow candidate window expansion" = "Allow candidate window expansion";
+"Candidate List Orientation:" = "Candidate List Orientation:";
