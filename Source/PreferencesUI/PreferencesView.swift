@@ -466,7 +466,7 @@ private struct BasicPreferencesView: View {
                 .fixedSize()
             }
 
-            PreferenceRow(localized("Candidate List Style:")) {
+            PreferenceRow(localized("Candidate List Orientation:")) {
                 Picker("", selection: $preferences.useHorizontalCandidateList) {
                     Text(localized("Vertical")).tag(false)
                     Text(localized("Horizontal")).tag(true)
@@ -474,6 +474,12 @@ private struct BasicPreferencesView: View {
                 .labelsHidden()
                 .pickerStyle(RadioGroupPickerStyle())
                 .fixedSize()
+            }
+
+            PreferenceRow {
+                Toggle(
+                    localized("Expandable candidate window"),
+                    isOn: $preferences.candidateWindowAllowsExpansion)
             }
 
             PreferenceRow(localized("Candidate Text Size:")) {

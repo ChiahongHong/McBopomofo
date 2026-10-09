@@ -35,6 +35,7 @@ private let kCandidateListTextSizeKey = "CandidateListTextSize"
 private let kSelectPhraseAfterCursorAsCandidateKey = "SelectPhraseAfterCursorAsCandidate"
 private let kMoveCursorAfterSelectingCandidateKey = "MoveCursorAfterSelectingCandidate"
 private let kUseHorizontalCandidateListPreferenceKey = "UseHorizontalCandidateList"
+private let kCandidateWindowAllowsExpansionKey = "CandidateWindowAllowsExpansion"
 private let kChooseCandidateUsingSpaceKey = "ChooseCandidateUsingSpaceKey"
 private let kChineseConversionEnabledKey = "ChineseConversionEnabled"
 private let kHalfWidthPunctuationEnabledKey = "HalfWidthPunctuationEnable"
@@ -219,6 +220,7 @@ class Preferences: NSObject {
             kCandidateListTextSizeKey,
             kSelectPhraseAfterCursorAsCandidateKey,
             kUseHorizontalCandidateListPreferenceKey,
+            kCandidateWindowAllowsExpansionKey,
             kChooseCandidateUsingSpaceKey,
             kChineseConversionEnabledKey,
             kHalfWidthPunctuationEnabledKey,
@@ -248,6 +250,7 @@ class Preferences: NSObject {
         Preferences.moveCursorAfterSelectingCandidate =
             Preferences.moveCursorAfterSelectingCandidate
         Preferences.useHorizontalCandidateList = Preferences.useHorizontalCandidateList
+        Preferences.candidateWindowAllowsExpansion = Preferences.candidateWindowAllowsExpansion
         Preferences.chineseConversionEnabled = Preferences.chineseConversionEnabled
         Preferences.halfWidthPunctuationEnabled = Preferences.halfWidthPunctuationEnabled
         Preferences.selectCandidateWithNumericKeypad = Preferences.selectCandidateWithNumericKeypad
@@ -296,6 +299,9 @@ class Preferences: NSObject {
 
     @UserDefault(key: kUseHorizontalCandidateListPreferenceKey, defaultValue: false)
     @objc static var useHorizontalCandidateList: Bool
+
+    @UserDefault(key: kCandidateWindowAllowsExpansionKey, defaultValue: false)
+    @objc static var candidateWindowAllowsExpansion: Bool
 
     @UserDefault(key: kChooseCandidateUsingSpaceKey, defaultValue: true)
     @objc static var chooseCandidateUsingSpace: Bool
@@ -614,6 +620,8 @@ extension Preferences {
         lines.append("  - Keyboard Layout: \(Preferences.keyboardLayout.name)")
         lines.append("  - Basis Keyboard Layout: \(Preferences.basisKeyboardLayout)")
         lines.append("  - Function Keyboard Layout: \(Preferences.functionKeyboardLayout)")
+        lines.append(
+            "  - Candidate Window Allows Expansion: \(Preferences.candidateWindowAllowsExpansion)")
         lines.append("  - Candidate Keys: \(Preferences.candidateKeys)")
         lines.append(
             "  - Selection Mode: \(Preferences.selectPhraseAfterCursorAsCandidate ? "After Cursor" : "Before Cursor")"
